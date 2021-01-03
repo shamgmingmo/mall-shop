@@ -4,14 +4,14 @@
       <h3 class="center">登录</h3>
       <div class="ipt">
         <el-input
-          v-model="user.name"
+          v-model="user.username "
           placeholder="请输入账号"
           clearable
         ></el-input>
       </div>
       <div class="ipt">
         <el-input
-          v-model="user.pass"
+          v-model="user.password"
           placeholder="请输入密码"
           clearable
           show-password
@@ -25,18 +25,29 @@
 </template>
 
 <script>
+import { reqLogin } from '../../utils/http';
+import {mapActions} from "vuex"
 export default {
     data(){
         return{
             user:{
-                name:"",
-                pass:""
+               username:"",
+                password:""
             }
         }
     },
-    mwthods:{
+    methods:{
+      ...mapActions({
+        changeUser:"changeUser"
+      }),
         login(){
-            this.$router.push("/")
+            reqLogin(this.user).then(res=>{
+              if (res.data.code==200) {
+                this.changeUser(res.data.list)
+                this.$router.push("/")
+                
+              }
+            })
         }
     }
 };

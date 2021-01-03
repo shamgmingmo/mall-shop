@@ -44,7 +44,6 @@ export default {
     },
   },
   mounted() {
-    //.获取list
     this.init();
   },
 };

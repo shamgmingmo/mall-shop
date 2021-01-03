@@ -2,12 +2,23 @@ import axios from "axios"
 import qs from "qs"
 import Vue from "vue"
 import { erroralert } from "./alert"
+import store from "../store"
+import router from "../router"
 //开发环境使用 8080
 let baseUrl = "/api"
 Vue.prototype.$pre = "http://localhost:3000"
 //生产环境使用 打包
 // let baseUrl=""
 // Vue.prototype.$pre=""
+
+
+//请求拦截:设置请求头
+axios.interceptors.request.use(config=>{
+    if(config.url!==baseUrl+"/api/userlogin"){
+        config.headers.authorization=store.state.userInfo.token
+    }
+    return config
+})
 //响应拦截
 axios.interceptors.response.use(res => {
     //统一处理失败
@@ -18,10 +29,13 @@ axios.interceptors.response.use(res => {
     if (!res.data.list) {
         res.data.list = []
     }
-    console.group("本次请求地址是：" + res.config.url)
-    console.log(res);
-    console.groupEnd()
-
+    //掉线处理
+    if(res.data.msg==="登录已过期或访问权限受限"){
+        //清除用户登录的信息 userInfo
+        store.dispatch("changeUser",{})
+        //跳到登录页面
+        router.push("/login")
+    }
     return res
 })
 // post 带有文件，参数转换
@@ -32,7 +46,14 @@ function dataToFormData(user) {
     }
     return data
 }
-
+//登录
+export let reqLogin=(user)=>{
+    return axios({
+        url:baseUrl+"/api/userlogin",
+        method:"post",
+        data:qs.stringify(user)
+    })
+}
 /****************菜单管理   start*****************/
 //添加
 export const reqMenuAdd = (user) => {
@@ -237,69 +258,69 @@ export let reqcateDel = (user) => {
 /************商品分类管理 end**************************/
 /************商品规格 start**************************/
 //添加
-export let reqspecsAdd=(user)=>{
+export let reqspecsAdd = (user) => {
     return axios({
-        url:baseUrl+"/api/specsadd",
-        method:"post",
-        data:qs.stringify(user)
+        url: baseUrl + "/api/specsadd",
+        method: "post",
+        data: qs.stringify(user)
 
     })
 }
 
 //列表
-export let reqspecslist =(p)=>{
+export let reqspecslist = (p) => {
     return axios({
-        url:baseUrl+"/api/specslist",
-        params:p
+        url: baseUrl + "/api/specslist",
+        params: p
     })
 }
 
 //详情
-export let reqspecsDetail =(user)=>{
+export let reqspecsDetail = (user) => {
     return axios({
-        url:baseUrl+"/api/specsinfo",
-        method:"get",
-        params:user
+        url: baseUrl + "/api/specsinfo",
+        method: "get",
+        params: user
     })
 }
 //修改
-export let reqspecsUpdate =(user)=>{
+export let reqspecsUpdate = (user) => {
     return axios({
-        url:baseUrl+"/api/specsedit",
-        method:"post",
-        data:qs.stringify(user)
+        url: baseUrl + "/api/specsedit",
+        method: "post",
+        data: qs.stringify(user)
 
     })
 }
 //删除
-export let reqspecsDel =(user)=>{
+export let reqspecsDel = (user) => {
     return axios({
-        url:baseUrl+"/api/goodsadd",
-        method:"post",
-        data:qs.stringify(user)
+        url: baseUrl + "/api/goodsadd",
+        method: "post",
+        data: qs.stringify(user)
     })
 }
 //总数
-export let reqspecsCount=()=>{
-   return axios({
-       url:baseUrl+"/api/specscount"
-   }) 
+export let reqspecsCount = () => {
+    return axios({
+        url: baseUrl + "/api/specscount"
+    })
 }
 
 /************商品规格 end**************************/
 
 /************商品管理 start**************************/
-export let reqgoodsAdd=(user)=>{
+export let reqgoodsAdd = (user) => {
     return axios({
-        url:baseUrl+"/api/goodsadd",
-        method:"post",
-        data:dataToFormData(user)
+        url: baseUrl + "/api/goodsadd",
+        method: "post",
+        data: dataToFormData(user)
     })
 }
-export let reqgoodslist=(p)=>{
+export let reqgoodslist = (p) => {
     return axios({
-        url:baseUrl+"/api/goodslist",
-        params:p
+        url: baseUrl + "/api/goodslist",
+        params: p
     })
 }
 export let reqgoodsDetail = (user) => {
@@ -326,9 +347,9 @@ export let reqgoodsDel = (user) => {
 }
 
 //总数
-export let reqgoodsCount=()=>{
+export let reqgoodsCount = () => {
     return axios({
-        url:baseUrl+"/api/goodscount"
+        url: baseUrl + "/api/goodscount"
     })
 }
 
@@ -349,7 +370,7 @@ export let reqbannerAdd = (user) => {
 export let reqbannerlist = () => {
     return axios({
         url: baseUrl + "/api/bannerlist",
-       method:"get"
+        method: "get"
     })
 }
 
@@ -435,7 +456,7 @@ export let reqsecklist = () => {
 }
 
 //详情 
-export let   reqseckDetail= (user) => {
+export let reqseckDetail = (user) => {
     return axios({
         url: baseUrl + "/api/seckinfo",
         method: "get",

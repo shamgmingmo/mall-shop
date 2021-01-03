@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" size="mini" @click="add">添加</el-button>
+    <el-button type="primary"  @click="add">添加</el-button>
     <v-list @edit="edit"></v-list>
     <v-add :addcon="addcon" @cancel="cancel" ref="add"></v-add>
   </div>

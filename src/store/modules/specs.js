@@ -1,12 +1,8 @@
 import {reqspecslist,reqspecsCount} from "../../utils/http"
 let state={
-    //列表
     list:[],
-    //总数
     total:0,
-    //一页的数量
     size:2,
-    //当前的页码
     page:1
 }
 let mutations={
@@ -33,30 +29,24 @@ let getters={
     }
 }
 let actions={
-    //获取list的action
     reqList(context,bool){
         let params=bool?{}:{page:context.state.page,size:context.state.size}
-        //发请求
         reqspecslist(params).then(res=>{
              if(res.data.code){
-                 //如果删除的是最后一页的最后一项
                  if(res.data.list.length===0&&context.state.page>1){
                      context.commit("changePage",context.state.page-1)
                      context.dispatch("reqList")
                      return
                  }
-                 //处理列表逻辑
                  let list=res.data.list;
                  list.forEach(item => {
                      item.attrs=JSON.parse(item.attrs)
                      
                  });
-                //修改list
                 context.commit("changeList",list)
              }
         })
     },
-    //获取总数
     reqTotal(context){
         reqspecsCount().then(res=>{
             if(res.data.code==200){
@@ -64,11 +54,8 @@ let actions={
             }
         })
     },
-    //修改page
     changePage(context,num){
-        //修改页码
         context.commit("changePage",num)
-        //重新请求list
         context.dispatch("reqList")
     }
 }

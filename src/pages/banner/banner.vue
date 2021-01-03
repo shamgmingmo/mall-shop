@@ -2,11 +2,7 @@
   <div>
   
     <el-button type="primary" @click="willAdd">添加</el-button>
-
-   
     <v-list :list="list" @init="init" @edit="edit($event)"></v-list>
-
-   
     <v-add :info="info" @init="init" :list="list" ref="add"></v-add>
   </div>
 </template>
@@ -21,29 +17,22 @@ export default {
     vAdd
   },
   data() {
-    return {
-      
+    return {  
       info: {
-        isshow: false,
-       
+        isshow: false,  
         isadd:true
-      },
-     
+      },    
       list: []
     };
   },
-  methods: {
-    
+  methods: {  
     willAdd() {
-      this.info.isshow = true;
-      
+      this.info.isshow = true;   
       this.info.isadd=true
-    },
-    
+    },    
     init() {
       reqbannerlist().then(res => {
-        if (res.data.code == 200) {
-         
+        if (res.data.code == 200) {       
           this.list = res.data.list;
         }
       });
@@ -52,16 +41,12 @@ export default {
     edit(id){
       //弹框出现
       this.info.isshow=true;
-
-   
       this.info.isadd=false
-
       //触发add的getOne()
       this.$refs.add.getOne(id)
     }
   },
   mounted() {
- 
     this.init();
   }
 };

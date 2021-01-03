@@ -5,7 +5,6 @@
       :visible.sync="info.isshow"
       @closed="cancel"
     >
-    {{user}}
       <el-form :model="user">
         <el-form-item label="手机号" label-width="100px">
           <el-input v-model="user.phone" autocomplete="off"></el-input>
@@ -15,7 +14,7 @@
           <el-input v-model="user.nickname" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" label-width="100px">
-          <el-input v-model="user.password" autocomplete="off"></el-input>
+          <el-input v-model="user.password" autocomplete="off" ></el-input>
         </el-form-item>
 
         <el-form-item label="状态" label-width="100px">
@@ -29,9 +28,7 @@
 
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancel">取 消</el-button>
-        <el-button type="primary"  v-if="info.isadd"
-          >添 加</el-button
-        >
+        <el-button type="primary" v-if="info.isadd">添 加</el-button>
         <el-button type="primary" @click="update" v-else>修 改</el-button>
       </div>
     </el-dialog>
@@ -40,19 +37,17 @@
 
 <script>
 import {
-   reqmemberlist,reqmemberUpdate,reqmemberDetail
+  reqmemberlist,
+  reqmemberUpdate,
+  reqmemberDetail,
 } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { erroralert, successalert } from "../../../utils/alert";
 export default {
-  // 接收info
-  // 收list
   props: ["info", "list"],
   data() {
     return {
-      
-      //初始化user
       user: {
-        uid:"",
+        uid: "",
         nickname: "",
         phone: "",
         password: "",
@@ -69,28 +64,21 @@ export default {
     });
   },
   methods: {
-    //点了取消
     cancel() {
-      //编辑清空数据
       if (!this.info.isadd) {
         this.empty();
       }
       this.info.isshow = false;
     },
-    //清空user
     empty() {
       this.user = {
-        uid:"",
+        uid: "",
         nickname: "",
         phone: "",
         password: "",
         status: 1,
       };
-    
     },
-   
-   
-    //修改了顶级菜单
     changePid() {
       if (this.user.pid == 0) {
         this.user.type = 1;
@@ -98,32 +86,46 @@ export default {
         this.user.type = 2;
       }
     },
-    
+
     getOne(id) {
       reqmemberDetail({ uid: id }).then((res) => {
         if (res.data.code == 200) {
+          //清空密码
+          res.data.list.password=""
           this.user = res.data.list;
           //补id
           this.user.id = id;
-         
-         
         }
       });
     },
-    
-    update() {
-     
-      reqmemberUpdate(this.user).then((res) => {
-        if (res.data.code == 200) {
-          //弹成功
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //数据清空
-          this.empty();
-          //刷新list
-          this.$emit("init");
+    checkProp() {
+      return new Promise((resolve) => {
+        if (this.user.phone === "") {
+          erroralert("手机号不能为空");
+          return;
         }
+        if (this.user.nickname === "") {
+          erroralert("昵称不能为空");
+          return;
+        }
+        if (this.user.password === "") {
+          erroralert("密码不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
+    update() {
+      this.checkProp().then(() => {
+        reqmemberUpdate(this.user).then((res) => {
+          if (res.data.code == 200){
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+           
+          }
+        });
       });
     },
   },

@@ -47,9 +47,7 @@ export default {
   computed: {
     ...mapGetters({
       list: "specs/list",
-      //总数
       total: "specs/total",
-      //一页的数量
       size: "specs/size",
     })
   },
@@ -59,27 +57,21 @@ export default {
       reqTotal:"specs/reqTotal",
       changePage:"specs/changePage"
     }),
-    //删除
     del(id) {
       reqspecsDel({ id: id }).then(res => {
         if (res.data.code == 200) {
           successalert(res.data.msg);
           this.reqList();
-          //总数
           this.reqTotal()
         }
       });
     },
-    //编辑
     edit(id) {
       this.$emit("edit", id);
     }
   },
   mounted() {
-    //获取列表
     this.reqList();
-
-    //获取总数
     this.reqTotal()
   }
 };

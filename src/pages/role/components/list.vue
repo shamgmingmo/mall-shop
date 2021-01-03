@@ -42,10 +42,8 @@ import { reqRoleDel } from "../../../utils/http";
 import { successalert } from "../../../utils/alert";
 
 export default {
-  //接收list
   props: ["list"],
   methods: {
-    //删除
     del(id) {
       reqRoleDel({ id: id }).then(res=>{
         if(res.data.code==200){
@@ -54,9 +52,7 @@ export default {
         }
       })
     },
-    //点了编辑按钮
     edit(id) {
-      //通知父组件有人点了编辑按钮
       this.$emit("edit", id);
     },
   },

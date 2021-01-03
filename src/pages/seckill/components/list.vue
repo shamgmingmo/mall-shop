@@ -2,53 +2,52 @@
   <div>
     <el-table
       :data="manlist"
-      style="width:100%;margin-bottom: 20px;"
+      style="width: 100%; margin-bottom: 20px"
       row-key="id"
       border
-      :tree-props="{children: 'children'}"
+      :tree-props="{ children: 'children' }"
     >
       <el-table-column prop="title" label="活动名称" sortable></el-table-column>
-      <el-table-column label="状态" sortable >
+      <el-table-column label="状态" sortable>
         <template slot-scope="scope">
-          <el-button v-if="scope.row.status==1" type="primary" size="mini">启用</el-button>
-          <el-button v-else type="primary" size="mini" disabled>禁用</el-button>
+          <el-button v-if="scope.row.status == 1" type="primary"
+            >启用</el-button
+          >
+          <el-button v-else type="primary" disabled>禁用</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="操作" >
+      <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="edit(scope.row.id)">编辑</el-button>
-          <el-button type="danger" size="mini" @click="del(scope.row.id)">删除</el-button>
+          <el-button type="primary" @click="edit(scope.row.id)">编辑</el-button>
+          <el-button type="danger" @click="del(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
   </div>
 </template>
 <script>
-import { reqscekDel } from "../../../utils/http";
-import { isDel,  successalert, infoAlert } from "../../../utils/alert";
+import { reqseckDel } from "../../../utils/http";
+import { isDel, successalert, infoAlert } from "../../../utils/alert";
 import { mapActions, mapGetters } from "vuex";
 export default {
   mounted() {
     this.reqlist();
   },
-  // 获取管理员列表数据
   computed: {
     ...mapGetters({
       manlist: "seckill/list",
-      
     }),
   },
   methods: {
-    // 请求管理员列表
     ...mapActions({
       reqlist: "seckill/reqList",
     }),
     del(id) {
       isDel()
         .then(() => {
-          reqseckDel(id).then((res) => {
+          reqseckDel({ id: id }).then((res) => {
             if (res.data.code == 200) {
-               successalert("删除成功");
+              successalert("删除成功");
               this.reqlist();
             } else {
               infoAlert(res.data.msg);
@@ -74,7 +73,6 @@ export default {
   display: flex;
 }
 .gucon {
-  
   height: 25px;
   background-color: rgb(237, 249, 253);
   border: 1px solid rgb(215, 237, 245);
@@ -82,8 +80,8 @@ export default {
   margin-right: 5px;
   color: rgb(62, 84, 180);
 }
-img{
-    width:100px;
-    height:100px;
+img {
+  width: 100px;
+  height: 100px;
 }
 </style>

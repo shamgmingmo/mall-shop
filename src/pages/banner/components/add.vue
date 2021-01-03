@@ -1,9 +1,6 @@
 <template>
-  <div class="form">
-    
-    <el-dialog :title="info.isadd?'添加轮播图':'编辑轮播图'" :visible.sync="info.isshow" @closed="cancel">
-     
-      
+  <div class="form"> 
+    <el-dialog :title="info.isadd?'添加轮播图':'编辑轮播图'" :visible.sync="info.isshow" @closed="cancel">   
       <el-form :model="user">
         <el-form-item label="标题" label-width="100px">
           <el-input v-model="user.title" autocomplete="off"></el-input>
@@ -42,10 +39,8 @@ export default {
   data() {
     return {
       //图片地址
-      imgUrl: "",
-     
+      imgUrl: "",   
       user: {
-       // id: "",
         title: "",
         img: null,
         status: 1
@@ -54,108 +49,96 @@ export default {
   },
   mounted() {},
   methods: {
-    //js 上传文件
+    // 上传文件
     changeImg(e) {
       let file = e.target.files[0];
-
-      //文件大小验证 1M=1024KB 1KB=1024B
+      //文件大小验证
       if (file.size > 2 * 1024 * 1024) {
         erroralert("文件大小不能超过2M");
         return;
       }
-
       //后缀名
-      //   let extname=file.name.slice(file.name.lastIndexOf("."));
       let extname = path.extname(file.name);
       let arr = [".png", ".gif", ".jpg", ".jpeg"];
       if (!arr.some(item => item === extname)) {
         erroralert("请上传图片");
         return;
       }
-
-      // 将文件生成一个url地址
       this.imgUrl = URL.createObjectURL(file);
-
-      //赋值给user.img
       this.user.img = file;
     },
-
-    //ui上传文件
     changeImg2(e){
         let file=e.raw;
-        //判断
         this.imgUrl=URL.createObjectURL(file)
         this.user.img=file;
     },
-
-    //点了取消
     cancel() {
-      //编辑清空数据
       if (!this.info.isadd) {
         this.empty();
       }
       this.info.isshow = false;
     },
-    //清空user
     empty() {
       this.imgUrl = "";
-      //初始化user
       this.user = {
-      //  id: "",
         title: "",
         img: null,
         status: 1
       };
     },
+      checkProp(){
+      return new Promise((resolve)=>{
+          if (this.user.title===""){
+            erroralert("标题不能为空")
+            return;
+          }
+          if (!this.user.img) {
+            erroralert("请上传图片")
+            return;
+          }
+          resolve()
+      })
+    },
     //添加
     add() {
-      reqbannerAdd(this.user).then(res => {
+      this.checkProp().then(()=>{
+         reqbannerAdd(this.user).then(res => {
         if (res.data.code == 200) {
-          // 封装了成功弹框
           successalert(res.data.msg);
-          //弹框消失
           this.cancel();
-          //清空user
           this.empty();
-          //列表刷新
           this.$emit("init");
         }
       });
+      })    
     },
-
-    //获取详情
     getOne(id) {
       reqbannerDetail({ id: id }).then(res => {
         if (res.data.code == 200) {
           this.user = res.data.list;
-          //补id
           this.user.id = id;
-          //处理图片
           this.imgUrl = this.$pre + this.user.img;
         }
       });
-    },
-    
+    },    
     update() {
-      reqbannerUpdate(this.user).then(res => {
+      this.checkProp().then(()=>{
+         reqbannerUpdate(this.user).then(res => {
         if (res.data.code == 200) {
-          //弹成功
           successalert(res.data.msg);
-          //弹框消失
           this.cancel();
-          //数据清空
           this.empty();
-          //刷新list
           this.$emit("init");
         }
       });
+      })
+     
     }
   }
 };
 </script>
 
 <style scoped lang="stylus">
-/* 原生js的样式 */
 .my-upload {
   width: 100px;
   height: 100px;

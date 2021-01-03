@@ -73,7 +73,7 @@
 import {
   reqseckAdd,
   reqcatelist,
-  reqseckUpdata,
+  reqseckUpdate,
   reqseckDetail,
   reqgoodslist,
 } from "../../../utils/http";
@@ -119,14 +119,14 @@ export default {
       reqspeslist: "specs/reqList",
       reqlist: "seckill/reqList",
     }),
-    // 关闭对话框时间清空
+    // 关闭对话框，时间清空
     close(){
-      // 当为编辑的时候清空时间对话框
+      // 当编辑的时候清空时间对话框
       if (this.addcon.isAdd == false) {
         this.timearr = [];
       }
     },
-    // 时间戳获取
+    // 获取时间戳
     changetime() {
       // 赋值给开始时间和结束时间
       this.user.begintime = this.timearr[0];
@@ -151,15 +151,15 @@ export default {
         }
       });
     },
-    //一级分类选择,改变二级分类的选项
+    //选择一级分类,改变二级分类的选项
     changefirst() {
-      //改变之前先清除选框里面的数据
+      //改变之前要先清除选框里面的数据
       this.user.second_cateid = "";
       this.getSecondcate();
     },
     // 二级分类选择后，根据一级分类和二级的id来改变商品的选项
     changesecond() {
-      // 改变之前清空商品
+      // 改变之前要先清空商品
       this.user.goodsid = "";
       this.getGoods();
     },
@@ -178,9 +178,30 @@ export default {
     cancel() {
       this.$emit("cancel");
     },
+    checkProp(){
+        return new Promise((resolve)=>{
+          if (this.user.title==="") {
+            erroralert("活动名称不能为空")
+            return;
+          }
+          if (this.user.first_cateid==="") {
+            erroralert("一级分类不能为空")
+            return; 
+          }
+          if (this.user.second_cateid==="") {
+            erroralert("二级分类不能为空") 
+            return;           
+          }
+          if (this.user.goodsid===""){
+            erroralert("商品不能为空")
+            return;
+          }
+          resolve()
+        })
+    },
     add() {
-      console.log(this.user)
-      reqseckAdd(this.user).then((res) => {
+     this.checkProp().then(()=>{
+        reqseckAdd(this.user).then((res) => {
         if (res.data.code == 200) {
           this.cancel();
           successalert("添加成功");
@@ -190,32 +211,36 @@ export default {
           erroralert(res.data.msg);
         }
       });
+     })
+     
     },
     getinfo(id) {
-      reqseckDetail(id).then((res) => {
+      reqseckDetail({id:id}).then((res) => {
         if (res.data.code == 200) {
           // 赋值给user
           this.user = res.data.list;
           //  赋值给时间数组
           this.timearr.push(this.user.begintime);
           this.timearr.push(this.user.endtime);
-          //  给二级分类赋值
+          //二级分类赋值
           this.getSecondcate();
-          // 给商品赋值
+          //商品赋值
           this.getGoods();
-          // 给user 表单赋值id
           this.user.id = id;
         }
       });
     },
     updata() {
-      reqseckUpdata(this.user).then((res) => {
+      this.checkProp().then(()=>{
+          reqseckUpdate(this.user).then((res) => {
         if (res.data.code == 200) {
           this.cancel();
            successalert("修改成功");
           this.reqlist();
         }
       });
+      })
+    
     },
   },
 };

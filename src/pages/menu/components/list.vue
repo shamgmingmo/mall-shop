@@ -48,10 +48,8 @@ import { reqMenuDel } from "../../../utils/http";
 import { successalert } from "../../../utils/alert";
 
 export default {
-  //接收list
   props: ["list"],
   methods: {
-    //删除
     del(id) {
       this.$confirm("你确定要删除吗?", "提示", {
         confirmButtonText: "删除",
@@ -59,21 +57,16 @@ export default {
         type: "warning",
       })
         .then(() => {
-          //点了删除按钮
           reqMenuDel({ id: id }).then((res) => {
             if (res.data.code === 200) {
-              //弹弹框
               successalert(res.data.msg);
-              //刷新list
               this.$emit("init");
             }
           });
         })
         .catch(() => {});
     },
-    //点了编辑按钮
     edit(id) {
-      //通知父组件有人点了编辑按钮
       this.$emit("edit", id);
     },
   },

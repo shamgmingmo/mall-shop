@@ -1,12 +1,10 @@
 <template>
   <div>
-    <!-- 绑定closed  -->
     <el-dialog
       :title="info.isadd ? '添加菜单' : '编辑菜单'"
       :visible.sync="info.isshow"
       @closed="cancel"
     >
-      <!-- 数据绑定到页面 -->
       <el-form :model="user">
         <el-form-item label="菜单名称" label-width="100px">
           <el-input v-model="user.title" autocomplete="off"></el-input>
@@ -68,14 +66,11 @@
 </template>
 
 <script>
-
 import { indexRoutes } from "../../../router";
 import { reqMenuAdd, reqMenuDetail, reqMenuUpdate } from "../../../utils/http";
-import { successalert } from "../../../utils/alert";
+import { erroralert, successalert } from "../../../utils/alert";
 export default {
-  // 接收info
-  // 收list
-  props: ["info","list"],
+  props: ["info", "list"],
   data() {
     return {
       //初始化user
@@ -85,7 +80,7 @@ export default {
         icon: "",
         type: 1,
         url: "",
-        status: 1
+        status: 1,
       },
       //icon集合
       icons: [
@@ -93,22 +88,19 @@ export default {
         "el-icon-user-solid",
         "el-icon-camera-solid",
         "el-icon-s-platform",
-        "el-icon-s-order"
+        "el-icon-s-order",
       ],
       //路由集合
-      indexRoutes
+      indexRoutes,
     };
   },
   methods: {
-    //点了取消
     cancel() {
-      //编辑清空数据
-      if(!this.info.isadd){
-        this.empty()
+      if (!this.info.isadd) {
+        this.empty();
       }
       this.info.isshow = false;
     },
-    //清空user
     empty() {
       this.user = {
         pid: 0,
@@ -116,58 +108,58 @@ export default {
         icon: "",
         type: 1,
         url: "",
-        status: 1
+        status: 1,
       };
     },
-    //添加
+    checkprops() {
+      return new Promise((resolve) => {
+        if (this.user.title === "") {
+          erroralert("菜单名称不能为空");
+          return;
+        }
+        resolve();
+      });
+    },
     add() {
-      reqMenuAdd(this.user).then(res => {
+      this.checkprops().then(() => {
+        reqMenuAdd(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
+        });
+      });
+    },
+    changePid() {
+      if (this.user.pid == 0) {
+        this.user.type = 1;
+      } else {
+        this.user.type = 2;
+      }
+    },
+    getOne(id) {
+      reqMenuDetail({ id: id }).then((res) => {
         if (res.data.code == 200) {
-          // 封装了成功弹框
-          successalert(res.data.msg);
-          //弹框消失
-          this.cancel();
-          //清空user
-          this.empty();
-          //列表刷新
-          this.$emit("init")
+          this.user = res.data.list;
+          this.user.id = id;
         }
       });
     },
-    //修改了顶级菜单
-    changePid(){
-      if(this.user.pid==0){
-        this.user.type=1
-      }else{
-        this.user.type=2;
-      }
+    update() {
+      this.checkprops().then(() => {
+        reqMenuUpdate(this.user).then((res) => {
+          if (res.data.code == 200) {
+            successalert(res.data.msg);
+            this.cancel();
+            this.empty();
+            this.$emit("init");
+          }
+        });
+      });
     },
-    //获取详情
-    getOne(id){
-      reqMenuDetail({id:id}).then(res=>{
-        if(res.data.code==200){
-          this.user=res.data.list
-          //补id
-          this.user.id=id;
-        }
-      })
-    },
-    //修改
-    update(){
-      reqMenuUpdate(this.user).then(res=>{
-        if(res.data.code==200){
-          //弹成功
-          successalert(res.data.msg)
-          //弹框消失
-          this.cancel()
-          //数据清空
-          this.empty()
-          //刷新list
-          this.$emit("init")
-        }
-      })
-    }
-  }
+  },
 };
 </script>
 

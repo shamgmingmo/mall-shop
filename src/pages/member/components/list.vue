@@ -47,13 +47,9 @@
 
 import { successalert } from "../../../utils/alert";
 export default {
-  //23.接收list
   props: ["list"],
   methods: {
-   
-    //34.点了编辑按钮
     edit(id) {
-      //通知父组件有人点了编辑按钮
       this.$emit("edit", id);
     },
   },
